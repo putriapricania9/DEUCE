@@ -1,0 +1,143 @@
+  public void setPanelOrder(){
+        String[] header = {"Pesanan","Packing","Size","Qty","Harga","Spinner"};
+        dtmOrder = new DefaultTableModel(0,0);
+        dtmOrder.setColumnIdentifiers(header);
+
+        tableOrder = new JTable(dtmOrder);
+        tableOrder.setPreferredScrollableViewportSize(new Dimension(600,300));
+        tableOrder.setFillsViewportHeight(true);
+        tableOrder.getTableHeader().setReorderingAllowed(false);
+        tableOrder.getTableHeader().setResizingAllowed(false);
+        tableOrder.getTableHeader().setFont(new Font("Berlin Sans FB", Font.PLAIN, 16));
+        tableOrder.getTableHeader().setOpaque(false);
+        tableOrder.getTableHeader().setBackground(Color.BLACK);
+        tableOrder.getTableHeader().setForeground(Color.WHITE);
+        tableOrder.getTableHeader().setPreferredSize(new Dimension(600,35));
+        tableOrder.setShowVerticalLines(false);
+        tableOrder.setRowHeight(30);
+        tableOrder.setOpaque(false);
+        tableOrder.setFont(new Font("Berlin Sans FB", Font.PLAIN, 14));
+        tableOrder.setForeground(Color.WHITE);
+        tableOrder.setGridColor(Color.WHITE);
+        tableOrder.setEnabled(false);
+
+        DefaultTableCellRenderer center = new DefaultTableCellRenderer();
+        center.setOpaque(false);
+        center.setHorizontalAlignment(JLabel.CENTER);
+        tableOrder.getColumnModel().getColumn(0).setCellRenderer(center);
+        tableOrder.getColumnModel().getColumn(0).setMaxWidth(170);
+        tableOrder.getColumnModel().getColumn(1).setCellRenderer(center);
+        tableOrder.getColumnModel().getColumn(1).setMaxWidth(150);
+        tableOrder.getColumnModel().getColumn(2).setCellRenderer(center);
+        tableOrder.getColumnModel().getColumn(2).setMaxWidth(100);
+        tableOrder.getColumnModel().getColumn(3).setCellRenderer(center);
+        tableOrder.getColumnModel().getColumn(3).setMaxWidth(70);
+        tableOrder.getColumnModel().getColumn(4).setCellRenderer(center);
+        tableOrder.getColumnModel().getColumn(4).setMaxWidth(110);
+        tableOrder.getColumnModel().getColumn(5).setMinWidth(0); // for hide
+        tableOrder.getColumnModel().getColumn(5).setMaxWidth(0); // for hide
+
+        JScrollPane jspOrder = new JScrollPane(tableOrder);
+        jspOrder.setOpaque(false);
+        jspOrder.getViewport().setBackground(new Color(0,0,0));
+        jspOrder.setBorder(BorderFactory.createEmptyBorder());
+
+        panelScrollPaneOrder = new JPanel(new CardLayout());
+        panelScrollPaneOrder.setBounds(0,0,600,300);
+        panelScrollPaneOrder.setOpaque(false);
+        panelScrollPaneOrder.add(jspOrder);
+
+        pnlBayar = new JPanel(null);
+        pnlBayar.setBounds(0,300,600,130);
+        pnlBayar.setBackground(Color.BLACK);
+        questsOrder = new JTextField[]{
+                new JTextField("Total"), new JTextField("Nama Pelanggan"),
+                new JTextField("Tunai"), new JTextField("Kembali")
+        };
+        int y=17;
+        for (JTextField quest : questsOrder) {
+            quest.setBounds(30, y, 110, 25);
+            quest.setEnabled(false);
+            quest.getCaret().deinstall(quest);
+            quest.setDisabledTextColor(Color.WHITE);
+            quest.setBorder(BorderFactory.createEmptyBorder());
+            quest.setOpaque(false);
+            quest.setFont(new Font("Berlin Sans FB", Font.PLAIN, 14));
+            pnlBayar.add(quest);
+            y += 25;
+        }
+        total = new JTextField();
+        total.setEnabled(false);
+        total.setHorizontalAlignment(JTextField.CENTER);
+        total.setBackground(Color.WHITE);
+        total.setDisabledTextColor(new Color(232,59,10));
+        total.setText("0.0");
+        total.setBounds(150,18,120,20);
+        pnlBayar.add(total);
+        namaPelanggan = new JTextField();
+        namaPelanggan.setBounds(150,43,200,20);
+        namaPelanggan.setBackground(Color.WHITE);
+        namaPelanggan.setForeground(Color.BLACK);
+        namaPelanggan.setBorder(BorderFactory.createEmptyBorder());
+        pnlBayar.add(namaPelanggan);
+        kembali = new JTextField();
+        kembali.setBounds(150,93,120,20);
+        kembali.setBackground(Color.WHITE);
+        kembali.setForeground(Color.BLACK);
+        kembali.setBorder(BorderFactory.createEmptyBorder());
+        pnlBayar.add(kembali);
+        tunai = new JTextField();
+        tunai.setBounds(150,68,120,20);
+        tunai.setBackground(Color.WHITE);
+        tunai.setForeground(Color.BLACK);
+        tunai.setBorder(BorderFactory.createEmptyBorder());
+        tunai.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                setKembali();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                if (tunai.getText().equals(""))
+                    kembali.setText("");
+                else {
+                    setKembali();
+                }
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                setKembali();
+            }
+
+            public void setKembali(){
+                if (Double.parseDouble(tunai.getText())>=Double.parseDouble(total.getText())){
+                    kembali.setText(String.valueOf(Double.parseDouble(tunai.getText())-Float.parseFloat(total.getText())));
+                }else
+                    kembali.setText("");
+            }
+        });
+        pnlBayar.add(tunai);
+        printReceipt = new JButton();
+        printReceipt.setBounds(400,30,70,70);
+        printReceipt.setIcon(new ImageIcon("images/icon/print.png"));
+        printReceipt.setFocusable(false);
+        printReceipt.setBackground(new Color(106,172,67));
+        printReceipt.addActionListener(this);
+        pnlBayar.add(printReceipt);
+        sendReceipt = new JButton();
+        sendReceipt.setBounds(500,30,70,70);
+        sendReceipt.setIcon(new ImageIcon("images/icon/send.png"));
+        sendReceipt.setFocusable(false);
+        sendReceipt.setBackground(new Color(106,172,67));
+        sendReceipt.addActionListener(this);
+        pnlBayar.add(sendReceipt);
+        panelOrder = new JPanel(null);
+        panelOrder.setBounds(720,0,600,430);
+        panelOrder.setOpaque(false);
+        panelOrder.add(panelScrollPaneOrder);
+        panelOrder.add(pnlBayar);
+        panelOrder.setVisible(false);
+        background.add(panelOrder);
+    }

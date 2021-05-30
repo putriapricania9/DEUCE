@@ -1,0 +1,173 @@
+    public void setTransaksiTable(){
+        String[] header = {"ID Transaksi","Nama","Tanggal Transaksi","Total Belanja","Username"};
+        dtmTransaksi = new DefaultTableModel(0,0);
+        dtmTransaksi.setColumnIdentifiers(header);
+
+        transaksiTable = new JTable(dtmTransaksi);
+        transaksiTable.setPreferredScrollableViewportSize(new Dimension(610,330));
+        transaksiTable.setFillsViewportHeight(true);
+        transaksiTable.getTableHeader().setReorderingAllowed(false);
+        transaksiTable.getTableHeader().setResizingAllowed(false);
+        transaksiTable.getTableHeader().setFont(new Font("Berlin Sans FB", Font.PLAIN, 16));
+        transaksiTable.getTableHeader().setOpaque(false);
+        transaksiTable.getTableHeader().setBackground(Color.BLACK);
+        transaksiTable.getTableHeader().setForeground(Color.WHITE);
+        transaksiTable.getTableHeader().setPreferredSize(new Dimension(610,30));
+        transaksiTable.setShowVerticalLines(false);
+        transaksiTable.setRowHeight(30);
+        transaksiTable.setOpaque(false);
+        transaksiTable.setFont(new Font("Berlin Sans FB", Font.PLAIN, 14));
+        transaksiTable.setForeground(Color.WHITE);
+        transaksiTable.setGridColor(Color.WHITE);
+        transaksiTable.setEnabled(false);
+
+        DefaultTableCellRenderer center = new DefaultTableCellRenderer();
+        center.setOpaque(false);
+        center.setHorizontalAlignment(JLabel.CENTER);
+        transaksiTable.getColumnModel().getColumn(0).setCellRenderer(center);
+        transaksiTable.getColumnModel().getColumn(0).setMaxWidth(110);
+        transaksiTable.getColumnModel().getColumn(0).setMinWidth(110);
+        transaksiTable.getColumnModel().getColumn(1).setCellRenderer(center);
+        transaksiTable.getColumnModel().getColumn(1).setMaxWidth(200);
+        transaksiTable.getColumnModel().getColumn(1).setMinWidth(200);
+        transaksiTable.getColumnModel().getColumn(2).setCellRenderer(center);
+        transaksiTable.getColumnModel().getColumn(2).setMaxWidth(150);
+        transaksiTable.getColumnModel().getColumn(2).setMinWidth(150);
+        transaksiTable.getColumnModel().getColumn(3).setCellRenderer(center);
+        transaksiTable.getColumnModel().getColumn(3).setMaxWidth(150);
+        transaksiTable.getColumnModel().getColumn(3).setMinWidth(150);
+        transaksiTable.getColumnModel().getColumn(4).setMaxWidth(0);
+        transaksiTable.getColumnModel().getColumn(4).setMinWidth(0);
+
+        jspTransaksi = new JScrollPane(transaksiTable);
+        jspTransaksi.setOpaque(false);
+        jspTransaksi.getViewport().setBackground(new Color(0,0,0,150));
+        jspTransaksi.setBorder(BorderFactory.createEmptyBorder());
+
+        transaksiScrollPane = new JPanel(new CardLayout());
+        transaksiScrollPane.setBounds(585,50,610,330);
+        transaksiScrollPane.setBorder(BorderFactory.createLineBorder(Color.WHITE,1));
+        transaksiScrollPane.setOpaque(false);
+        transaksiScrollPane.add(jspTransaksi);
+        background.add(transaksiScrollPane);
+        transaksiScrollPane.setVisible(false);
+
+        panelIsiSaldo = new JPanel(null);
+        panelIsiSaldo.setBounds(125,50,460,330);
+        panelIsiSaldo.setBackground(Color.BLACK);
+
+        isiSaldoPelanggan = new JLabel();
+        isiSaldoPelanggan.setBounds(0,65,460,30);
+        isiSaldoPelanggan.setForeground(new Color(106,172,67));
+        isiSaldoPelanggan.setFont(new Font("Lucida Console", Font.PLAIN, 16));
+        isiSaldoPelanggan.setHorizontalAlignment(JLabel.CENTER);
+        panelIsiSaldo.add(isiSaldoPelanggan);
+
+        JTextField[] questSaldo = {new JTextField("Username"),new JTextField("Jumlah")};
+        int y=115;
+        for (JTextField quest : questSaldo) {
+            quest.setBounds(65, y, 80, 30);
+            quest.setFont(new Font("Lucida Console", Font.PLAIN, 14));
+            quest.setDisabledTextColor(Color.WHITE);
+            quest.setBorder(BorderFactory.createEmptyBorder());
+            quest.setOpaque(false);
+            quest.setEnabled(false);
+            panelIsiSaldo.add(quest);
+            y += 50;
+        }
+        JTextField user_saldo = new JTextField();
+        user_saldo.setBounds(145,115,250,30);
+        user_saldo.setBorder(BorderFactory.createEmptyBorder());
+        panelIsiSaldo.add(user_saldo);
+
+        JTextField rp = new JTextField();
+        rp.setBounds(145,165,250,30);
+        rp.setBorder(BorderFactory.createEmptyBorder());
+        panelIsiSaldo.add(rp);
+
+        JButton kirim = new JButton("Transfer");
+        kirim.setBounds(65,y,330,30);
+        kirim.setForeground(Color.WHITE);
+        kirim.setBackground(new Color(106,172,67));
+        kirim.setFocusable(false);
+        kirim.addActionListener(e -> {
+            if (user_saldo.getText().equals("") || rp.getText().equals("")){
+                JOptionPane.showMessageDialog(null,"isi username dan jumlah");
+            }else {
+                double saldoAwal = 0;
+                try {
+                    String s = "SELECT * FROM user;";
+                    Statement st = connection.createStatement();
+                    ResultSet resultSet = st.executeQuery(s);
+                    boolean ada = false;
+                    while (resultSet.next()){
+                        if (resultSet.getString(1).equals(user_saldo.getText())){
+                            saldoAwal = Double.parseDouble(resultSet.getString(6));
+                            ada = true;
+                        }
+                    }
+                    if (!ada){
+                        JOptionPane.showMessageDialog(null,"user tidak ditemukan");
+                    }
+                    else {
+                        if (!admin){
+                            if (Double.parseDouble(saldo.getText()) < Double.parseDouble(rp.getText()))
+                                JOptionPane.showMessageDialog(null,"saldo kamu kurang :(");
+                            else{
+                                saldo.setText(String.valueOf(Double.parseDouble(saldo.getText())-Double.parseDouble(rp.getText())));
+                                String sql = "UPDATE user SET saldo = "+(Double.parseDouble(rp.getText())+saldoAwal)+
+                                        " WHERE username = '"+user_saldo.getText()+"';";
+                                String sqll = "UPDATE user set saldo = "+ saldo.getText() +
+                                        " WHERE username = '"+username+"';";
+                                Statement statement = connection.createStatement();
+                                statement.executeUpdate(sql);
+                                statement.executeUpdate(sqll);
+                                JOptionPane.showMessageDialog(null,"Transfer Berhasil");
+                            }
+                        }else {
+                            String sql = "UPDATE user SET saldo = "+(Double.parseDouble(rp.getText())+saldoAwal)+
+                                    " WHERE username = '"+user_saldo.getText()+"';";
+                            Statement statement = connection.createStatement();
+                            statement.executeUpdate(sql);
+                            JOptionPane.showMessageDialog(null,"Isi saldo pelanggan berhasil");
+                        }
+                    }
+                }catch (SQLException ex){
+                    JOptionPane.showMessageDialog(null,ex.getMessage());
+                }
+            }user_saldo.setText("");rp.setText("");
+        });
+        panelIsiSaldo.add(kirim);
+
+        background.add(panelIsiSaldo);
+        panelIsiSaldo.setVisible(false);
+    }
+
+    public void tampilkanTransaksi(){
+        dtmTransaksi.setRowCount(0);
+
+        try {
+            String sql = "SELECT * FROM transaksi";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            if (admin){
+                double saldoAdmin = 0;
+                while (resultSet.next()){
+                    dtmTransaksi.addRow(new Object[]{resultSet.getString(1),resultSet.getString(2),
+                            resultSet.getString(3),resultSet.getString(4),resultSet.getString(5)});
+                    saldoAdmin+=Double.parseDouble(resultSet.getString(4));
+                }
+                saldo.setText(String.valueOf(saldoAdmin));
+            }else {
+                while (resultSet.next()){
+                    if (resultSet.getString(5).equals(username)){
+                        dtmTransaksi.addRow(new Object[]{resultSet.getString(1),resultSet.getString(2),
+                                resultSet.getString(3),resultSet.getString(4),resultSet.getString(5)});
+                    }
+                }
+            }
+
+        }catch (SQLException e){
+            System.out.println("Error : " + e.getMessage());
+        }
+    }

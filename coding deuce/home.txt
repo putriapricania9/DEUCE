@@ -1,0 +1,127 @@
+  public void setPanelUtama(){
+        JLabel sampul = new JLabel();
+        sampul.setIcon(new ImageIcon("images/bg/sampul.jpg"));
+        sampul.setBounds(0,0,1320,240);
+
+        JLabel gighit = new JLabel("Deuce");
+        gighit.setBounds(20,80,500,100);
+        gighit.setFont(new Font("Jokerman", Font.PLAIN, 80));
+        gighit.setForeground(Color.WHITE);
+        sampul.add(gighit);
+
+        panelUser = new JPanel(null);
+        panelUser.setBackground(new Color(0,0,0,130));
+        panelUser.setBounds(720,0,600,210);
+
+        JLabel userIcon = new JLabel();
+        userIcon.setIcon(new ImageIcon("images/icon/accountIcon.png"));
+        userIcon.setBounds(275,20,50,50);
+        userIcon.setOpaque(false);
+        panelUser.add(userIcon);
+
+        nama = new JLabel();
+        nama.setBounds(0,80,600,30);
+        nama.setHorizontalAlignment(JLabel.CENTER);
+        nama.setForeground(Color.WHITE);
+        nama.setFont(new Font("Lucida Console",Font.PLAIN,14));
+        panelUser.add(nama);
+
+        saldo = new JLabel();
+        saldo.setBounds(0,120,600,30);
+        saldo.setForeground(new Color(135,240,225));
+        saldo.setHorizontalAlignment(JLabel.CENTER);
+        saldo.setFont(new Font("Lucida Console",Font.PLAIN,14));
+        panelUser.add(saldo);
+
+        JButton logOut = new JButton("Sign Out");
+        logOut.setBounds(225,160,150,30);
+        logOut.setForeground(Color.WHITE);
+        logOut.setFocusable(false);
+        logOut.setBackground(new Color(106,172,67));
+        logOut.addActionListener(e -> {
+            int ok = JOptionPane.showConfirmDialog(null,"Sign Out?",
+                    "Confirmation",JOptionPane.YES_NO_OPTION);
+            if (ok == 0){
+                for (int i=0 ; i<pizzas.size() ; i++){
+                    pQtyM.get(i).setValue(0);
+                    pQtyL.get(i).setValue(0);
+                    pSize.get(i).setSelectedItem(null);
+                    pPrice.get(i).setText("");
+                    pQtyM.get(i).setEnabled(false);
+                    pL.get(i).setVisible(false);
+                    pM.get(i).setVisible(true);
+                }
+                for (int i=0 ; i<drinks.size() ; i++){
+                    dQtyM.get(i).setValue(0);
+                    dQtyL.get(i).setValue(0);
+                    dSize.get(i).setSelectedItem(null);
+                    dPrice.get(i).setText("");
+                    dQtyM.get(i).setEnabled(false);
+                    dL.get(i).setVisible(false);
+                    dM.get(i).setVisible(true);
+                }
+                for (int i=0 ; i<starters.size() ; i++){
+                    sQty.get(i).setValue(0);
+                }
+                dtmOrder.setRowCount(0);
+                panelOrder.setVisible(false);
+                panelUser.setVisible(false);
+                panelUtama.setVisible(false);
+                login.setVisible(true);
+                panelUtama.removeAll();
+            }
+        });
+        panelUser.add(logOut);
+        panelUser.setVisible(false);
+        sampul.add(panelUser);
+
+        JButton[] buttons = new JButton[]{
+                btnHome = new JButton("HOME"),
+                btnPizza = new JButton("PIZZA"),
+                btnDrink = new JButton("DRINKS"),
+                btnStarters = new JButton("STARTERS"),
+                btnTransaksi = new JButton("MANAGE")
+        };
+
+        int x=0;
+        for (JButton button : buttons) {
+            button.setBounds(x, 210, 144, 30);
+            button.setForeground(Color.WHITE);
+            button.setOpaque(false);
+            button.setContentAreaFilled(false);
+            button.setFocusPainted(false);
+            button.setFont(new Font("Lucida Console", Font.PLAIN, 13));
+            button.addActionListener(this);
+            sampul.add(button);
+            x += 144;
+        }
+        btnOrder = new JButton("ORDER");
+        btnOrder.setBounds(720,210,600,30);
+        btnOrder.setOpaque(false);
+        btnOrder.setContentAreaFilled(false);
+        btnOrder.setFocusPainted(false);
+        btnOrder.setForeground(Color.WHITE);
+        btnOrder.setFont(new Font("Lucida Console",Font.PLAIN,13));
+        btnOrder.addActionListener(this);
+        sampul.add(btnOrder);
+
+        background = new JLabel();
+        background.setLayout(null);
+        background.setBounds(0,240,1320,440);
+        background.setIcon(new ImageIcon("images/bg/background.jpg"));
+
+        labelHome = new JLabel("'tidak ada perasaan yang lebih baik di seluruh dunia " +
+                "selain kotak pizza hangat dipangkuanmu'-KJ");
+        labelHome.setForeground(Color.WHITE);
+        labelHome.setFont(new Font("Lucida Console",Font.PLAIN,16));
+        labelHome.setBounds(0,0,1320,430);
+        labelHome.setHorizontalAlignment(JLabel.CENTER);
+        labelHome.setVerticalAlignment(JLabel.CENTER);
+
+        panelUtama = new JPanel(null);
+        panelUtama.setBounds(0,0,1320,670);
+        panelUtama.setBackground(Color.BLACK);
+        panelUtama.add(sampul);
+        panelUtama.add(background);
+        panelUtama.setVisible(false);
+    }

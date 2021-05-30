@@ -1,0 +1,635 @@
+public void setProdukMenu(){
+        sizes = new String[]{new Medium().getSize(), new Large().getSize()};
+        sizess = new Size[]{new Medium(), new Large()};
+        pizzaMenu = new JPanel(new BorderLayout());
+        pizzaMenu.setBounds(20,0,1300,430);
+        pizzaMenu.setOpaque(false);
+        drinksMenu = new JPanel(new BorderLayout());
+        drinksMenu.setBounds(20,0,1300,430);
+        drinksMenu.setOpaque(false);
+        startersMenu = new JPanel(new BorderLayout());
+        startersMenu.setBounds(20,0,1300,430);
+        startersMenu.setOpaque(false);
+
+        pizzaScrollPanel = new JPanel(null);
+        pizzaScrollPanel.setOpaque(false);
+        drinkScrollPanel = new JPanel(null);
+        drinkScrollPanel.setOpaque(false);
+        startersScrollPanel = new JPanel(null);
+        startersScrollPanel.setOpaque(false);
+
+        jspPizza = new JScrollPane(pizzaScrollPanel);
+        jspPizza.setOpaque(false);
+        jspPizza.getViewport().setOpaque(false);
+        jspPizza.setBorder(BorderFactory.createEmptyBorder());
+        jspDrink = new JScrollPane(drinkScrollPanel);
+        jspDrink.setOpaque(false);
+        jspDrink.getViewport().setOpaque(false);
+        jspDrink.setBorder(BorderFactory.createEmptyBorder());
+        jspStarters = new JScrollPane(startersScrollPanel);
+        jspStarters.setOpaque(false);
+        jspStarters.getViewport().setOpaque(false);
+        jspStarters.setBorder(BorderFactory.createEmptyBorder());
+
+        pizzaMenu.add(jspPizza);
+        drinksMenu.add(jspDrink);
+        startersMenu.add(jspStarters);
+        background.add(pizzaMenu);
+        background.add(drinksMenu);
+        background.add(startersMenu);
+        pizzaMenu.setVisible(false);
+        drinksMenu.setVisible(false);
+        startersMenu.setVisible(false);
+    }
+
+  public void deleteProduk(int i, String namaTable, String namaPizza){
+        try {
+            String sql = "DELETE FROM " + namaTable + " WHERE nama"+namaTable+" = '" + namaPizza + "';";
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(sql);
+            switch (namaTable) {
+                case "Pizza" -> {
+                    pizzaScrollPanel.remove(pPanel.get(i));
+                    pizzas.remove(i);
+                    pPanel.remove(i);
+                    pDelete.remove(i);
+                    pEdit.remove(i);
+                    pName.remove(i);
+                    pDesc.remove(i);
+                    pImage.remove(i);
+                    pSize.remove(i);
+                    pPrice.remove(i);
+                    pQtyM.remove(i);
+                    pQtyL.remove(i);
+                    pM.remove(i);
+                    pL.remove(i);
+                    this.p--;
+                }
+                case "Drink" -> {
+                    drinkScrollPanel.remove(dPanel.get(i));
+                    drinks.remove(i);
+                    dPanel.remove(i);
+                    dDelete.remove(i);
+                    dEdit.remove(i);
+                    dName.remove(i);
+                    dDesc.remove(i);
+                    dImage.remove(i);
+                    dSize.remove(i);
+                    dPrice.remove(i);
+                    dQtyM.remove(i);
+                    dQtyL.remove(i);
+                    dM.remove(i);
+                    dL.remove(i);
+                    this.d--;
+                }
+                case "Starters" -> {
+                    startersScrollPanel.remove(sPanel.get(i));
+                    starters.remove(i);
+                    sPanel.remove(i);
+                    sDelete.remove(i);
+                    sEdit.remove(i);
+                    sName.remove(i);
+                    sDesc.remove(i);
+                    sImage.remove(i);
+                    sPrice.remove(i);
+                    sQty.remove(i);
+                    this.s--;
+                }
+            }
+            addToListProduk(namaTable);
+        }catch (SQLException e){
+            System.out.println("Error : " + e.getMessage());
+        }
+    }
+
+    public void addNew(String namaTable, String nama, String image, String sizeM, String sizeL, String desc){
+        String sql = "INSERT INTO " + namaTable + " VALUES\n" +
+                "('" + nama + "','" + image + "'," + sizeM + "," + sizeL + ",'" + desc + "');";
+        if (namaTable.equals("Starters")){
+            sql = "INSERT INTO " + namaTable + " VALUES\n" +
+                    "('" + nama + "','" + image + "'," + sizeM + ",'" + desc + "');";
+        }
+
+        try {
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(sql);
+            addToListProduk(namaTable);
+            tampil(namaTable);
+        }catch (SQLException e){
+            System.out.println("Error : " + e.getMessage());
+        }
+    }
+
+    public void editProduk(int index,String namaTable, String nama){
+        try {
+            String sql = "SELECT * FROM " + namaTable;
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()){
+                if (resultSet.getString(1).equals(nama)){
+                    if (namaTable.equals("Starters")){
+                        answer[0].setText(resultSet.getString(1));
+                        answer[1].setText(resultSet.getString(2));
+                        answer[2].setText(resultSet.getString(3));
+                        answer[4].setText(resultSet.getString(4));
+                    }
+                    else {
+                        for (int i=0 ; i<5 ;i++){
+                            answer[i].setText(resultSet.getString(i+1));
+                        }
+                    }
+                }
+            }
+
+            deleteProduk(index,namaTable,nama);
+            btnBackNewProduk.setEnabled(false);
+
+        }catch (SQLException e){
+            System.out.println("Error : " + e.getMessage());
+        }
+    }
+
+    public void addToListProduk(String namaTable){
+        try {
+            String sql = "SELECT * FROM " + namaTable;
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()){
+                boolean belumAda = true;
+                switch (namaTable) {
+                    case "Pizza" -> {
+                        if (pizzas.size() > 0) {
+                            for (Pizza pizza : pizzas) {
+                                if (resultSet.getString(1).equals(pizza.getName())) {
+                                    belumAda = false;
+                                }
+                            }
+                        }
+                        if (belumAda) {
+                            pizzas.add(new Pizza(resultSet.getString(1),
+                                    new ImageIcon(resultSet.getString(2)),
+                                    resultSet.getDouble(3),
+                                    resultSet.getDouble(4),
+                                    resultSet.getString(5)));
+                            pPanel.add(new JPanel());
+                            pDelete.add(new JButton());
+                            pEdit.add(new JButton());
+                            pName.add(new JLabel());
+                            pDesc.add(new JTextArea());
+                            pImage.add(new JLabel());
+                            pSize.add(new JComboBox(sizes));
+                            pPrice.add(new JLabel());
+                            pQtyM.add(new JSpinner());
+                            pQtyL.add(new JSpinner());
+                            pM.add(new JPanel());
+                            pL.add(new JPanel());
+                            addProdukToPanel(namaTable,pizzas.get(p), pPanel.get(p), pDelete.get(p), pEdit.get(p), pName.get(p), pDesc.get(p), pImage.get(p),
+                                    pSize.get(p), pPrice.get(p), pQtyM.get(p), pQtyL.get(p),pM.get(p),pL.get(p));
+                            this.p++;
+                        }
+                    }
+                    case "Drink" -> {
+                        if (drinks.size() > 0) {
+                            for (Drink drink : drinks) {
+                                if (resultSet.getString(1).equals(drink.getName())) {
+                                    belumAda = false;
+                                }
+                            }
+                        }
+                        if (belumAda) {
+                            drinks.add(new Drink(resultSet.getString(1),
+                                    new ImageIcon(resultSet.getString(2)),
+                                    resultSet.getDouble(3),
+                                    resultSet.getDouble(4),
+                                    resultSet.getString(5)));
+                            dPanel.add(new JPanel());
+                            dDelete.add(new JButton());
+                            dEdit.add(new JButton());
+                            dName.add(new JLabel());
+                            dDesc.add(new JTextArea());
+                            dImage.add(new JLabel());
+                            dSize.add(new JComboBox(sizes));
+                            dPrice.add(new JLabel());
+                            dQtyM.add(new JSpinner());
+                            dQtyL.add(new JSpinner());
+                            dM.add(new JPanel());
+                            dL.add(new JPanel());
+                            addProdukToPanel(namaTable,drinks.get(d), dPanel.get(d), dDelete.get(d), dEdit.get(d),
+                                    dName.get(d), dDesc.get(d), dImage.get(d), dSize.get(d), dPrice.get(d),
+                                    dQtyM.get(d), dQtyL.get(d), dM.get(d), dL.get(d));
+                            this.d++;
+                        }
+                    }
+                    case "Starters" -> {
+                        if (starters.size() > 0) {
+                            for (Starters starter : starters) {
+                                if (resultSet.getString(1).equals(starter.getName())) {
+                                    belumAda = false;
+                                }
+                            }
+                        }
+                        if (belumAda) {
+                            starters.add(new Starters(resultSet.getString(1),
+                                    new ImageIcon(resultSet.getString(2)),
+                                    resultSet.getDouble(3),
+                                    resultSet.getString(4)));
+                            sPanel.add(new JPanel());
+                            sDelete.add(new JButton());
+                            sEdit.add(new JButton());
+                            sName.add(new JLabel());
+                            sDesc.add(new JTextArea());
+                            sImage.add(new JLabel());
+                            sPrice.add(new JLabel());
+                            sQty.add(new JSpinner());
+                            addProdukToPanel(namaTable,starters.get(s), sPanel.get(s), sDelete.get(s),
+                                    sEdit.get(s), sName.get(s), sDesc.get(s), sImage.get(s),
+                                    new JComboBox(), sPrice.get(s), sQty.get(s), new JSpinner(), new JPanel(),
+                                    new JPanel());
+                            this.s++;
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e){
+            System.out.println("Error : " + e.getMessage());
+        }
+    }
+
+    public void addProdukToPanel(String namaTable,Produk produk,JPanel panel,JButton delete,
+                                 JButton edit,JLabel name,JTextArea desc,JLabel image,
+                                 JComboBox size,JLabel price,JSpinner qtyM,JSpinner qtyL,
+                                 JPanel pnlM, JPanel pnlL){
+
+        panel.setLayout(null);
+        panel.setPreferredSize(new Dimension(240,300));
+        panel.setBackground(Color.BLACK);
+        name.setText(produk.getName());
+        name.setFont(new Font("Edwardian Script ITC", Font.BOLD, 30));
+        name.setBounds(20,160,200,40);
+        name.setForeground(new Color(135,240,225));
+        desc.setText(produk.getDesc());
+        desc.setRows(2);
+        desc.setColumns(1);
+        desc.setLineWrap(true);
+        desc.setFont(new Font("Berlin Sans FB", Font.PLAIN, 14));
+        desc.setForeground(Color.WHITE);
+        desc.getCaret().deinstall(desc);
+        desc.setEnabled(false);
+        desc.setBounds(20,210,200,30);
+        desc.setOpaque(false);
+        image.setIcon(produk.getImage());
+        image.setBounds(0,0,240,147);
+        image.setHorizontalAlignment(JLabel.CENTER);
+        image.setVerticalAlignment(JLabel.BOTTOM);
+
+        if (namaTable.equals("Starters")){
+            price.setText(" Rp. "+produk.getPrice());
+            price.setBounds(20,260,165,32);
+            price.setFont(new Font("Berlin Sans FB", Font.PLAIN, 14));
+            price.setForeground(new Color(232,59,10));
+            price.setBackground(new Color(184,207,229));
+            price.setOpaque(true);
+            price.setBorder(BorderFactory.createLineBorder(new Color(184,207,229),2));
+            qtyM.setModel(new SpinnerNumberModel(0,0,50,1));
+            qtyM.setBounds(185,260,40,32);
+            qtyM.setBorder(BorderFactory.createLineBorder(new Color(184,207,229),2));
+            qtyM.getEditor().getComponent(0).setBackground(Color.WHITE);
+            qtyM.getComponent(0).setBackground(Color.BLACK);
+            qtyM.getComponent(1).setBackground(Color.BLACK);
+            qtyM.getEditor().setForeground(Color.BLACK);
+            qtyM.setOpaque(true);
+            qtyM.addChangeListener(this);
+            panel.add(price);
+            panel.add(qtyM);
+        }
+        else {
+            qtyM.setModel(new SpinnerNumberModel(0,0,50,1));
+            qtyL.setModel(new SpinnerNumberModel(0,0,50,1));
+            qtyM.setBounds(0,0,40,32);
+            qtyL.setBounds(0,0,40,32);
+            qtyM.setBorder(BorderFactory.createLineBorder(new Color(184,207,229),2));
+            qtyL.setBorder(BorderFactory.createLineBorder(new Color(184,207,229),2));
+            qtyM.getEditor().getComponent(0).setBackground(Color.WHITE);
+            qtyL.getEditor().getComponent(0).setBackground(Color.WHITE);
+            qtyM.getComponent(0).setBackground(Color.BLACK);
+            qtyL.getComponent(0).setBackground(Color.BLACK);
+            qtyM.getComponent(1).setBackground(Color.BLACK);
+            qtyL.getComponent(1).setBackground(Color.BLACK);
+            qtyM.getEditor().setForeground(Color.BLACK);
+            qtyL.getEditor().setForeground(Color.BLACK);
+            qtyM.setOpaque(true);
+            qtyL.setOpaque(true);
+            qtyM.setEnabled(false);
+            qtyM.addChangeListener(this);
+            qtyL.addChangeListener(this);
+            pnlM.setLayout(null);
+            pnlL.setLayout(null);
+            pnlM.setBounds(185,260,40,32);
+            pnlL.setBounds(185,260,40,32);
+            pnlM.add(qtyM);
+            pnlL.add(qtyL);
+            pnlL.setVisible(false);
+            size.setBounds(20,260,165,32);
+            size.setSelectedItem(null);
+            size.setFont(new Font("Berlin Sans FB", Font.PLAIN, 14));
+            size.setBackground(new Color(184,207,229));
+            size.setBorder(BorderFactory.createLineBorder(new Color(184,207,229),2));
+            size.setForeground(Color.BLACK);
+            size.setFocusable(false);
+            size.addActionListener(this);
+            size.setSelectedItem(this);
+            price.setText("");
+            price.setBounds(50,-1,90,31);
+            price.setFont(new Font("Berlin Sans FB", Font.PLAIN, 14));
+            price.setForeground(new Color(232,59,10));
+            size.add(price);
+            panel.add(pnlM);
+            panel.add(pnlL);
+        }
+
+        delete.setBounds(196,0,44,14);
+        delete.setText("delete");
+        delete.setOpaque(false);
+        delete.setContentAreaFilled(false);
+        delete.setFocusPainted(false);
+        delete.setBorder(BorderFactory.createEmptyBorder());
+        delete.setFont(new Font("Berlin Sans FB", Font.PLAIN, 13));
+        delete.setForeground(Color.WHITE);
+        delete.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        delete.addActionListener(this);
+        edit.setBounds(0,0,27,14);
+        edit.setText("edit");
+        edit.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        edit.setOpaque(false);
+        edit.setContentAreaFilled(false);
+        edit.setFocusPainted(false);
+        edit.addActionListener(this);
+        edit.setBorder(BorderFactory.createEmptyBorder());
+        edit.setFont(new Font("Berlin Sans FB", Font.PLAIN, 13));
+        edit.setForeground(Color.WHITE);
+        image.add(delete);
+        image.add(edit);
+
+        panel.add(name);
+        panel.add(desc);
+        panel.add(image);
+        panel.add(size);
+        //panel.add(delete);
+        //panel.add(edit);
+
+    }
+
+    public void setFormAddNew(){
+        question = new JTextArea[]{new JTextArea("Nama Pizza\n\nImage Pizza" +
+                "\n\nHarga Medium Size\n\nHarga Large Size\n\nDeskripsi Pizza"),
+                new JTextArea("Nama Drink\n\nImage Drink" +
+                        "\n\nHarga Medium Size\n\nHarga Large Size\n\nDeskripsi Drink"),
+                new JTextArea("Nama starters\n\nImage Starters\n\nHarga Starters\n\nDeskripsi Starters")};
+
+        formAddNew = new JPanel(null);
+        formAddNew.setBounds(230,20,860,390);
+        formAddNew.setBackground(new Color(0,0,0,100));
+
+        btnAddNewPizza = new JButton("",new ImageIcon("images/icon/plusIcon.png"));
+        btnAddNewPizza.setBounds(95,125,50,50);
+        btnAddNewPizza.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnAddNewPizza.setVisible(false);
+        btnAddNewPizza.addActionListener(this);
+        btnAddNewDrinks = new JButton("",new ImageIcon("images/icon/plusIcon.png"));
+        btnAddNewDrinks.setBounds(95,125,50,50);
+        btnAddNewDrinks.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnAddNewDrinks.setVisible(false);
+        btnAddNewDrinks.addActionListener(this);
+        btnAddNewStarters = new JButton("",new ImageIcon("images/icon/plusIcon.png"));
+        btnAddNewStarters.setBounds(95,125,50,50);
+        btnAddNewStarters.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnAddNewStarters.setVisible(false);
+        btnAddNewStarters.addActionListener(this);
+
+        panelAddNewProduk = new JPanel(null);
+        panelAddNewProduk.setOpaque(false);
+        panelAddNewProduk.setPreferredSize(new Dimension(240,300));
+        panelAddNewProduk.add(btnAddNewPizza);
+        panelAddNewProduk.add(btnAddNewDrinks);
+        panelAddNewProduk.add(btnAddNewStarters);
+
+        btnBackNewProduk = new JButton("< b a c k");
+        btnBackNewProduk.setBounds(0,5,200,60);
+        btnBackNewProduk.setBackground(Color.BLACK);
+        btnBackNewProduk.setForeground(Color.WHITE);
+        btnBackNewProduk.setFont(new Font("Script MT Bold", Font.PLAIN, 40));
+        btnBackNewProduk.setFocusable(false);
+        btnBackNewProduk.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnBackNewProduk.addActionListener(this);
+        btnSaveNewProduk = new JButton(" S A V E !");
+        btnSaveNewProduk.setBounds(660,320,200,60);
+        btnSaveNewProduk.setBackground(Color.WHITE);
+        btnSaveNewProduk.setForeground(Color.BLACK);
+        btnSaveNewProduk.setFocusable(false);
+        btnSaveNewProduk.setFont(new Font("Script MT Bold", Font.PLAIN, 40));
+        btnSaveNewProduk.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnSaveNewProduk.addActionListener(this);
+
+        for (JTextArea jTextArea : question){
+            jTextArea.setBounds(100,80,200,225);
+            jTextArea.setEnabled(false);
+            jTextArea.getCaret().deinstall(jTextArea);
+            jTextArea.setDisabledTextColor(Color.WHITE);
+            jTextArea.setOpaque(false);
+            jTextArea.setFont(new Font("Berlin Sans FB", Font.PLAIN, 22));
+            jTextArea.setVisible(false);
+            formAddNew.add(jTextArea);
+        }
+
+        answer = new JTextField[5];
+        int y = 80;
+        for (int i=0 ; i<5 ; i++){
+            answer[i] = new JTextField();
+            answer[i].setBounds(300,y,480,25);
+            answer[i].setBackground(new Color(184,207,229));
+            answer[i].setBorder(BorderFactory.createEmptyBorder());
+
+            formAddNew.add(answer[i]);
+            y+=50;
+        }
+
+        formAddNew.add(btnBackNewProduk);
+        formAddNew.add(btnSaveNewProduk);
+        formAddNew.setVisible(false);
+        background.add(formAddNew);
+    }
+
+    public void tampil(String namatable){
+        formAddNew.setVisible(false);
+        pizzaMenu.setVisible(false);
+        drinksMenu.setVisible(false);
+        startersMenu.setVisible(false);
+        labelHome.setVisible(false);
+        pizzaScrollPanel.setVisible(false);
+        drinkScrollPanel.setVisible(false);
+        startersScrollPanel.setVisible(false);
+
+        switch (namatable) {
+            case "Pizza" -> {
+                int pX = 0;
+                int pY = 20;
+                for (JPanel jPanel : pPanel) {
+                    jPanel.setBounds(pX,pY,240,300);
+                    pizzaScrollPanel.add(jPanel);
+                    if (pX == 1040){
+                        pX = 0;
+                        pY += 320;
+                        pizzaScrollPanel.setPreferredSize(new Dimension(1280,pY*2));
+                    }else{
+                        pX+=260;
+                    }
+                }
+                panelAddNewProduk.setBounds(pX,pY,240,300);
+                pizzaScrollPanel.add(panelAddNewProduk);
+                btnAddNewDrinks.setVisible(false);
+                btnAddNewStarters.setVisible(false);
+                btnAddNewPizza.setVisible(true);
+                pizzaMenu.setVisible(true);
+                pizzaScrollPanel.setVisible(true);
+            }
+            case "Drink" -> {
+                int dX = 0;
+                int dY = 20;
+                for (JPanel jPanel : dPanel) {
+                    jPanel.setBounds(dX,dY,240,300);
+                    drinkScrollPanel.add(jPanel);
+                    if (dX == 1040){
+                        dX = 0;
+                        dY += 320;
+                        drinkScrollPanel.setPreferredSize(new Dimension(1280,dY+320));
+                    }else{
+                        dX+=260;
+                    }
+                }
+                panelAddNewProduk.setBounds(dX,dY,240,300);
+                drinkScrollPanel.add(panelAddNewProduk);
+                btnAddNewPizza.setVisible(false);
+                btnAddNewStarters.setVisible(false);
+                btnAddNewDrinks.setVisible(true);
+                drinksMenu.setVisible(true);
+                drinkScrollPanel.setVisible(true);
+            }
+            case "Starters" -> {
+                int sX = 0;
+                int sY = 20;
+                for (JPanel jPanel : sPanel) {
+                    jPanel.setBounds(sX,sY,240,300);
+                    startersScrollPanel.add(jPanel);
+                    if (sX == 1040){
+                        sX = 0;
+                        sY += 320;
+                        startersScrollPanel.setPreferredSize(new Dimension(1280,sY+320));
+                    }else{
+                        sX+=260;
+                    }
+                }
+                panelAddNewProduk.setBounds(sX,sY,240,300);
+                startersScrollPanel.add(panelAddNewProduk);
+                btnAddNewPizza.setVisible(false);
+                btnAddNewDrinks.setVisible(false);
+                btnAddNewStarters.setVisible(true);
+                startersMenu.setVisible(true);
+                startersScrollPanel.setVisible(true);
+            }
+        }
+    }
+  
+
+
+package mypackage;
+
+import javax.swing.*;
+
+public class Drink implements Produk {
+    private String namaDrink;
+    private ImageIcon imageDrink;
+    private String descDrink;
+    private double priceDrinkM, priceDrinkL;
+    private Size size;
+
+    Drink(String namaDrink, ImageIcon imageDrink, double priceM, double priceL, String deskripsiDrink){
+        this.namaDrink = namaDrink;
+        this.imageDrink = imageDrink;
+        this.priceDrinkM = priceM;
+        this.priceDrinkL = priceL;
+        this.descDrink = deskripsiDrink;
+    }
+
+    @Override
+    public String getName() {
+        return this.namaDrink;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.namaDrink = name;
+    }
+
+    @Override
+    public ImageIcon getImage() {
+        return this.imageDrink;
+    }
+
+    @Override
+    public void setImage(ImageIcon image) {
+        this.imageDrink = image;
+    }
+
+    @Override
+    public String getDesc() {
+        return this.descDrink;
+    }
+
+    @Override
+    public void setDesc(String desc) {
+        this.descDrink = desc;
+    }
+
+    @Override
+    public Packing packing() {
+        return new GelasPlastik();
+    }
+
+    @Override
+    public double getPrice() {
+        if (size.getSize().equals("Large"))
+            return this.priceDrinkL;
+        else
+            return this.priceDrinkM;
+    }
+
+    public void setSize(Size size) {
+        this.size = size;
+    }
+
+    public Size getSize(){
+        return this.size;
+    }
+
+    public void setPriceDrinkM(double priceDrinkM){
+        this.priceDrinkM = priceDrinkM;
+    }
+
+    public void setPriceDrinkL(double priceDrinkL){
+        this.priceDrinkL = priceDrinkL;
+    }
+
+}
+
+package mypackage;
+
+public class GelasPlastik implements Packing {
+
+    @Override
+    public String packName() {
+        return "Gelas Plastik";
+    }
+
+}

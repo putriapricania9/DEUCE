@@ -1,0 +1,108 @@
+    public void setReceipt(){
+        try {
+            String sql = "INSERT INTO transaksi (namaPelanggan,tgl_transaksi,ttl_belanja,username) VALUES\n" +
+                    "('"+namaPelanggan.getText()+"',NOW(),"+total.getText()+",'"+username+"');";
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(sql);
+        }catch (SQLException sqlException){
+            System.out.println("Error : " + sqlException.getMessage());
+        }
+
+        JFrame frameReceipt  = new JFrame();
+        frameReceipt.setSize(400,700);
+        frameReceipt.setLocationRelativeTo(null);
+        frameReceipt.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        frameReceipt.setAlwaysOnTop(true);
+        frameReceipt.setResizable(false);
+        frameReceipt.setVisible(true);
+
+        JLabel gighit = new JLabel("Deuce",JLabel.CENTER);
+        gighit.setFont(new Font("Jokerman", Font.PLAIN, 30));
+        gighit.setBounds(0,0,385,80);
+
+        JTextArea isi = new JTextArea(
+                "\n\n\n\n---------------------------------------------\n"+
+                        "    Jl. Cemara Permai No. 158 Harapan Jaya\n"+
+                        "          Bekasi Utara, Kota Bekasi\n"+
+                        "                     17124\n"+
+                        "---------------------------------------------\n" +
+                        " Nama : " + namaPelanggan.getText() + "\n" +
+                        "---------------------------------------------\n"+
+                        "---------------------------------------------\n"+
+                        " Pesanan                            Harga\n"+
+                        "---------------------------------------------\n"
+        );
+        isi.setLineWrap(true);
+        isi.setEnabled(false);
+        isi.setDisabledTextColor(Color.BLACK);
+        isi.setBounds(0,0,385,80);
+        isi.setFont(new Font("monospaced", Font.PLAIN, 13));
+        isi.setLayout(null);
+        isi.add(gighit);
+        for (int row=0 ; row<tableOrder.getRowCount() ; row++){
+            isi.append(" "+dtmOrder.getValueAt(row,3)
+                    +" x "+ dtmOrder.getValueAt(row,0));
+            if (!dtmOrder.getValueAt(row, 2).equals("-"))
+                isi.append("("+dtmOrder.getValueAt(row,2)+")");
+
+            isi.append("\n                                    "+dtmOrder.getValueAt(row,4)+"\n");
+        }
+        isi.append("---------------------------------------------\n" +
+                " Total                              "+total.getText() + "\n");
+        if (admin){
+            isi.append("---------------------------------------------\n" +
+                    " Tunai                              "+Double.parseDouble(tunai.getText())+"\n" +
+                    "---------------------------------------------\n");
+            isi.append(" Kembali                            "+kembali.getText()+"\n");
+        }else{
+            try {
+                String kode_pesanan = "";
+                String sql = "SELECT * FROM transaksi;";
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(sql);
+                while (resultSet.next()){
+                    kode_pesanan = resultSet.getString(1);
+                }
+                isi.append(" Kode : "+kode_pesanan+"\n" +
+                           " Tunjukan kode ke kasir dan ambil pesananmu ya \n");
+            }catch (SQLException sqlException){
+                System.out.println("Error : " + sqlException.getMessage());
+            }
+        }
+        isi.append("---------------------------------------------\n" +
+                "      TERIMAKASIH DAN SAMPAI JUMPA LAGI\n"+
+                "           ~by Deuce Application~");
+
+        JScrollPane jsp = new JScrollPane();
+        jsp.setViewportView(isi);
+        frameReceipt.add(jsp);
+
+        for (int i=0 ; i<pizzas.size() ; i++){
+            pQtyM.get(i).setValue(0);
+            pQtyL.get(i).setValue(0);
+            pSize.get(i).setSelectedItem(null);
+            pPrice.get(i).setText("");
+            pQtyM.get(i).setEnabled(false);
+            pQtyL.get(i).setVisible(false);
+            pQtyM.get(i).setVisible(true);
+        }
+        for (int i=0 ; i<drinks.size() ; i++){
+            dQtyM.get(i).setValue(0);
+            dQtyL.get(i).setValue(0);
+            dSize.get(i).setSelectedItem(null);
+            dPrice.get(i).setText("");
+            dQtyM.get(i).setEnabled(false);
+            dQtyL.get(i).setVisible(false);
+            dQtyM.get(i).setVisible(true);
+        }
+        for (int i=0 ; i<starters.size() ; i++){
+            sQty.get(i).setValue(0);
+        }
+        panelOrder.setVisible(false);
+        panelUser.setVisible(false);
+        dtmOrder.setRowCount(0);
+        namaPelanggan.setText("");
+        tunai.setText("");
+        kembali.setText("");
+        tampilkanTransaksi();
+    }
